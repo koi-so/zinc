@@ -2,8 +2,6 @@
 
 #include "base.h"
 
-#include <tuple>
-
 namespace zinc {
 namespace details {
 template <usize I, typename T> struct tuple_unit {
