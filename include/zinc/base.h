@@ -1,5 +1,6 @@
 #pragma once
 
+// mostly headers found on freestanding implementations of C++
 #include <atomic>
 #include <cfloat>
 #include <climits>
@@ -33,6 +34,8 @@ forward(std::remove_reference_t<TForward> &Arg) noexcept -> TForward && {
   return static_cast<TForward &&>(Arg);
 }
 } // namespace zinc
+
+// nice typedefs
 
 // Unsigned int types.
 typedef uint8_t u8;

@@ -4,7 +4,7 @@ elseif is_mode("release") then
     add_rules("mode.release")
 end
 
-target("zinclib")
+target("zinc")
     set_kind("$(kind)")
     add_includedirs("include", {public = true})
     add_defines("ZINC_CONFIG_SHARED_LIB" , "ZINC_EXPORTS")
@@ -15,7 +15,7 @@ target("zinclib")
         add_syslinks("User32", "Shell32", "Gdi32", "Kernel32")
     end
 
-target("zincpp")
+target("zincpp-test")
     set_kind("binary")
     add_files("tests/zincpp.cpp")
     set_languages("cxx17")
