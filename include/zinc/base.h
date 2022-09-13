@@ -15,13 +15,13 @@
 namespace zinc {
 template <typename TMove,
           typename MovedType = typename std::remove_reference<TMove>::type &&>
-auto move(TMove &&value) -> MovedType {
+inline constexpr auto move(TMove &&value) -> MovedType {
   return static_cast<MovedType>(value);
 };
 
-template <typename T> auto drop(T &&) -> void {}
+template <typename T> inline constexpr auto drop(T &&) -> void {}
 
-template <typename Type> void swap(Type &a, Type &b) {
+template <typename Type> inline constexpr void swap(Type &a, Type &b) {
   Type temp = drop(a);
   a = drop(b);
   b = drop(temp);
