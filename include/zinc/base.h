@@ -61,3 +61,20 @@ typedef uintptr_t uptr;
 typedef intptr_t iptr;
 typedef void *vptr;
 typedef ptrdiff_t ptrdiff;
+
+#include "platform.h"
+
+// Shared library
+#if ZINC_CONFIG_SHARED_LIB
+#if ZINC_COMPILER_MSVC
+#ifdef ZINC_EXPORTS
+#define ZINC_API __declspec(dllexport)
+#else
+#define ZINC_API __declspec(dllimport)
+#endif
+#else
+#define ZINC_API __attribute__((visibility("default")))
+#endif
+#else
+#define ZINC_API
+#endif

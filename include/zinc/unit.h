@@ -3,7 +3,7 @@
 #include "base.h"
 
 namespace zinc {
-struct Unit {
+ZINC_API struct Unit {
   constexpr Unit() = default;
   constexpr Unit(const Unit &) = default;
   constexpr Unit(Unit &&) = default;

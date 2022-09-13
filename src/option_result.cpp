@@ -1,5 +1,5 @@
 #include "zinc/option_result_fwd.h"
 
 namespace zinc {
-details::none none{};
+ZINC_API details::none none{};
 }

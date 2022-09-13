@@ -1,5 +1,7 @@
 #pragma once
 
+#include "base.h"
+
 namespace zinc {
 namespace details {
 struct none {
@@ -8,7 +10,7 @@ struct none {
 };
 } // namespace details
 
-extern details::none None;
+ZINC_API extern details::none None;
 
 template <typename TValue, typename TError> struct result;
 template <typename TValue> struct option;
