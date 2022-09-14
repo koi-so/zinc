@@ -45,10 +45,28 @@ template <typename TError> auto Err(const TError &value) {
 template <typename TValue, typename TError> struct result {
 public:
   inline result() = default;
+
   inline result(details::success<TValue> okr)
       : tag(Tag::Ok), m_value(okr.m_payload) {}
-  inline result(details::error<TValue> okr)
+  inline result(details::error<TError> okr)
       : tag(Tag::Err), m_error(okr.m_payload) {}
+
+  inline result(const result &other) : tag(other.tag) {
+    if (other.tag == Tag::Ok) {
+      m_value = other.m_value;
+    } else {
+      m_error = other.m_error;
+    }
+  }
+
+  inline result(result &&other) : tag(other.tag) {
+    if (other.tag == Tag::Ok) {
+      m_value = move(other.m_value);
+    } else {
+      m_error = move(other.m_error);
+    }
+  }
+
   [[nodiscard]] inline auto is_ok() const -> bool { return tag == Tag::Ok; }
 
   inline auto is_ok_and(func<bool(TValue const &)> fn) -> bool {
@@ -232,6 +250,29 @@ public:
     if (is_ok()) {
       return move(m_value);
     }
+  }
+
+  [[nodiscard]] inline auto unwrap_err_unchecked() const -> TError {
+    // TODO: add debug macros
+    if (is_err()) {
+      return move(m_error);
+    }
+  }
+
+  template <typename TOtherValue>
+  [[nodiscard]] inline auto contains(TOtherValue &&value) const -> bool {
+    if (is_ok()) {
+      return m_value == value;
+    }
+    return false;
+  }
+
+  template <typename TOtherError>
+  [[nodiscard]] inline auto contains_err(TOtherError &&error) const -> bool {
+    if (is_err()) {
+      return m_error == error;
+    }
+    return false;
   }
 
 private:
