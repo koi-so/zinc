@@ -67,6 +67,26 @@ public:
     }
   }
 
+  inline auto operator=(const result &other) -> result & {
+    if (other.tag == Tag::Ok) {
+      m_value = other.m_value;
+    } else {
+      m_error = other.m_error;
+    }
+    tag = other.tag;
+    return *this;
+  }
+
+  inline auto operator=(result &&other) -> result & {
+    if (other.tag == Tag::Ok) {
+      m_value = move(other.m_value);
+    } else {
+      m_error = move(other.m_error);
+    }
+    tag = other.tag;
+    return *this;
+  }
+
   [[nodiscard]] inline auto is_ok() const -> bool { return tag == Tag::Ok; }
 
   inline auto is_ok_and(func<bool(TValue const &)> fn) -> bool {
