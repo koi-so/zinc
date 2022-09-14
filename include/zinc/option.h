@@ -24,13 +24,15 @@ template <typename TValue> struct option {
   option(option<TOtherValue> &&other)
       : m_value(other.m_value), m_has_value(other.m_has_value) {}
 
-  option &operator=(option const &other) = default;
-  option &operator=(option &&other) = default;
+  auto operator=(option const &other) -> option & = default;
+  auto operator=(option &&other) -> option & = default;
 
   [[nodiscard]] constexpr auto has_value() const -> bool { return m_has_value; }
   [[nodiscard]] constexpr auto value() const -> TValue const & {
     return m_value;
   }
+
+  operator bool() const { return m_has_value; }
 
 private:
   template <typename TOtherValue> friend struct option;

@@ -9,7 +9,7 @@ auto main() -> int {
   g = move(g.inspect_err([](i32 i) { std::cout << i << std::endl; }));
   std::cout << "mnmn:" << g.unwrap() << std::endl;
 
-  zinc::duration s(5, 60);
-  std::cout << s.as_microseconds() << std::endl;
+  zinc::duration s(0, 500'000'001);
+  std::cout << s.checked_mul(6).value().as_seconds() << std::endl;
   return 0;
 }

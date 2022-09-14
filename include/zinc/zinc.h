@@ -1,9 +1,11 @@
 #pragma once
 
-#include "base.h"
-#include "func.h"
-#include "option.h"
-#include "result.h"
-#include "time.h"
-#include "tuple.h"
-#include "unit.h"
+#include "zinc/base.h"
+#include "zinc/checked_int.h"
+#include "zinc/debug.h"
+#include "zinc/func.h"
+#include "zinc/option.h"
+#include "zinc/result.h"
+#include "zinc/time.h"
+#include "zinc/tuple.h"
+#include "zinc/unit.h"

@@ -13,6 +13,10 @@
 #include <type_traits>
 #include <utility>
 
+// These are only available on devices that have a functional kernel
+#include <cstdio>
+#include <cstring>
+
 namespace zinc {
 template <typename TMove,
           typename MovedType = typename std::remove_reference<TMove>::type &&>

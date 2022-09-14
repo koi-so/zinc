@@ -295,6 +295,8 @@ public:
     return false;
   }
 
+  operator bool() const { return is_ok(); }
+
 private:
   enum Tag { Ok, Err } tag = Tag::Err;
   union {
