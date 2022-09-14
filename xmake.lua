@@ -17,7 +17,7 @@ target("zinc")
         add_syslinks("User32", "Shell32", "Gdi32", "Kernel32")
     end
 
-target("zincpp-test")
+target("zinctest")
     set_kind("binary")
     add_files("tests/zincpp.cpp")
     set_languages("cxx17")
