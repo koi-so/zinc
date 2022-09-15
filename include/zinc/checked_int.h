@@ -32,4 +32,12 @@ template <typename T, typename U>
     return result;
   return None;
 }
+
+template <typename T, typename U>
+[[nodiscard]] inline auto checked_div(T a, U b) -> option<T> {
+  T result;
+  if (SafeDivide(a, b, result))
+    return result;
+  return None;
+}
 } // namespace zinc
