@@ -4,12 +4,19 @@
 
 using namespace zinc;
 
+template struct zinc::option<i32>;
+
 auto main() -> int {
-  result<i32, i32> g = Ok(5);
-  g = move(g.inspect_err([](i32 i) { std::cout << i << std::endl; }));
-  std::cout << "mnmn:" << g.unwrap() << std::endl;
+  option<i32> g = Some(2);
+  g = g.map<i32>([](i32 const &x) { return x + 1; });
+  g = g.map<i32>([](i32 const &x) { return x + 1; });
+  g = g.map<i32>([](i32 const &x) { return x + 1; });
+  std::cout << g.value() << std::endl;
+
+  option<i64> f = Some(16);
+  std::cout << (f == g) << std::endl;
 
   zinc::duration s(0, 500'000'001);
-  std::cout << s.checked_mul(6).value().as_seconds() << std::endl;
+  std::cout << s.checked_mul(6).value().as_seconds_floating<f64>() << std::endl;
   return 0;
 }

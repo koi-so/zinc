@@ -3,177 +3,52 @@
 #include "base.h"
 
 namespace zinc {
-template <typename... Args> struct func;
-
-template <typename R, typename... Args> struct func<R(Args...)> {
-public:
-  /** construct empty func object */
-  func() : m_invoke(nullptr), m_delete(nullptr), m_copy(nullptr) {}
-
-  /** destruct func object */
-  ~func() {
-    if (m_delete)
-      m_delete(*this);
-  }
-
-  /** construct a valid func object from the copy of the given func
-   * pointer or functor */
-  template <typename F,
-            typename std::enable_if<
-                !std::is_same<typename std::decay<F>::type, func>::value,
-                int>::type = 1>
-  func(F &&functor) : func(1, cast_mem_fn(forward<F>(functor))) {}
-
-  /** run func call */
-  auto operator()(Args... args) const -> R {
-    // TODO THROW IF THIS DOESN'T PASS
-    // if (!m_functor || !m_invoke)
-    return (*m_invoke)(*this, static_cast<Args>(args)...);
-  }
-
-  /** copy constructor */
-  func(const func &other)
-      : m_functor(other.m_copy ? (*other.m_copy)(other) : nullptr),
-        m_invoke(other.m_invoke), m_delete(other.m_delete),
-        m_copy(other.m_copy) {}
-
-  /** move constructor */
-  func(func &&other)
-      : m_functor(other.m_functor), m_invoke(other.m_invoke),
-        m_delete(other.m_delete), m_copy(other.m_copy) {
-    other.m_functor = nullptr;
-    other.m_invoke = nullptr;
-    other.m_delete = nullptr;
-    other.m_copy = nullptr;
-  }
-
-  /** copy assignment */
-  auto operator=(const func &other) -> func & {
-    if (this == &other)
-      return *this;
-    if (m_delete)
-      m_delete(*this);
-    m_functor = other.m_copy ? (*other.m_copy)(other) : nullptr;
-    m_invoke = other.m_invoke;
-    m_delete = other.m_delete;
-    m_copy = other.m_copy;
-    return *this;
-  }
-
-  /** move assignment */
-  auto operator=(func &&other) -> func & {
-    if (m_delete)
-      m_delete(*this);
-    m_functor = other.m_functor;
-    m_invoke = other.m_invoke;
-    m_delete = other.m_delete;
-    m_copy = other.m_copy;
-    other.m_functor = nullptr;
-    other.m_invoke = nullptr;
-    other.m_delete = nullptr;
-    other.m_copy = nullptr;
-    return *this;
-  }
-
+template <typename> struct func;
+template <typename Return, typename... Args> struct func<Return(Args...)> {
 private:
-  template <typename F>
-  func(int dummy, F &&functor)
-      : m_functor(reinterpret_cast<char *>(
-            new typename std::decay<F>::type(forward<F>(functor)))) {
-    typedef typename std::decay<F>::type functor_type;
-    static_assert(std::is_same<R, decltype(invoke_impl<functor_type>(
-                                      func(), std::declval<Args>()...))>::value,
-                  "invalid functor type");
-    static_assert(std::is_copy_constructible<functor_type>::value,
-                  "uncopyable functor type");
-    m_invoke = invoke_impl<functor_type>;
-    m_delete = delete_impl<functor_type>;
-    m_copy = copy_impl<functor_type>;
-  }
-
-  template <typename F> auto cast_mem_fn(F &&f) -> F && {
-    return static_cast<F &&>(f);
-  }
-
-  /** a pointer to struct member cannot be casted to char* */
-  /** conversion to a functor can solve this issue */
-  template <typename CLASS, typename METHOD> struct pmf_wrapper {
-    METHOD CLASS::*m_pmf;
-
-  public:
-    pmf_wrapper(METHOD CLASS::*pmf) : m_pmf(pmf) {}
-
-    auto operator()(Args... args) -> R {
-      return invoke<METHOD>(static_cast<Args>(args)...);
-    }
-
-  private:
-    template <typename T,
-              typename std::enable_if<
-                  std::is_same<CLASS, typename std::decay<T>::type>::value,
-                  int>::type = 1>
-    auto transfer(T &&inst) -> T && {
-      return static_cast<T &&>(inst);
-    }
-
-    template <typename T,
-              typename std::enable_if<
-                  std::is_same<
-                      CLASS, typename std::decay<decltype(*T())>::type>::value,
-                  int>::type = 1>
-    auto transfer(T &&ptr) -> decltype(*ptr) {
-      return *ptr;
-    }
-
-    /** member func pointer */
-    template <
-        typename MT,
-        typename std::enable_if<std::is_function<MT>::value, int>::type = 1,
-        typename T, typename... SUBARGS>
-    auto invoke(T &&inst, SUBARGS &&...args) -> R {
-      return (transfer(forward<T>(inst)).*m_pmf)(forward<SUBARGS>(args)...);
-    }
-
-    /** data member pointer */
-    template <
-        typename MT,
-        typename std::enable_if<!std::is_function<MT>::value, int>::type = 1,
-        typename T>
-    auto invoke(T &&inst) -> R {
-      return transfer(forward<T>(inst)).*m_pmf;
-    }
+  struct base_wrapper {
+    Return (*thunk)(base_wrapper *wrapper, Args... args) = nullptr;
   };
 
-  template <typename CLASS, typename METHOD>
-  auto cast_mem_fn(METHOD CLASS::*pmf) -> pmf_wrapper<CLASS, METHOD> {
-    return pmf_wrapper<CLASS, METHOD>(pmf);
+  template <typename TCallable> struct _wrapper : base_wrapper {
+    std::decay_t<TCallable> callable;
+
+    static auto thunk(base_wrapper *wrapper, Args... args) -> Return {
+      return static_cast<_wrapper *>(wrapper)->callable(
+          std::forward<Args>(args)...);
+    }
+    template <typename I>
+    inline _wrapper(I &&callable)
+        : base_wrapper{&thunk}, callable{std::forward<I>(callable)} {}
+  };
+
+  base_wrapper *wrapper = nullptr;
+
+public:
+  inline func() = default;
+  inline func(func &&other) : wrapper{other.wrapper} {
+    other.wrapper = nullptr;
   }
-
-  template <typename F>
-  static auto invoke_impl(const func &obj, Args... args)
-      -> decltype(std::declval<F>()(static_cast<Args>(args)...)) {
-    return (*reinterpret_cast<F *>(obj.m_functor))(static_cast<Args>(args)...);
+  template <typename TCallable,
+            typename = std::void_t<
+                decltype(std::declval<TCallable>()(std::declval<Args>()...))>>
+  inline func(TCallable &&callable)
+      : wrapper{new _wrapper<TCallable>{std::forward<TCallable>(callable)}} {}
+  inline ~func() {
+    if (this->wrapper) {
+      delete this->wrapper;
+    }
   }
-
-  template <typename F> static void delete_impl(const func &obj) {
-    delete reinterpret_cast<F *>(obj.m_functor);
+  inline void operator=(func &&other) {
+    this->wrapper = other.wrapper;
+    other.wrapper = nullptr;
   }
-
-  template <typename F> static auto copy_impl(const func &obj) -> char * {
-    return reinterpret_cast<char *>(
-        new F(*reinterpret_cast<const F *>(obj.m_functor)));
+  [[nodiscard]] inline auto is_valid() const -> bool {
+    return this->wrapper != nullptr;
   }
-
-  /** pointer to the internal func pointer/functor object (on heap) */
-  char *m_functor{};
-
-  /** call m_functor */
-  R (*m_invoke)(const func &obj, Args... args);
-
-  /** destroy m_functor */
-  void (*m_delete)(const func &obj);
-
-  /** copy m_functor */
-  char *(*m_copy)(const func &obj);
+  inline explicit operator bool() const { return this->wrapper != nullptr; }
+  inline auto operator()(Args... args) const -> Return {
+    return this->wrapper->thunk(this->wrapper, std::forward<Args>(args)...);
+  }
 };
 } // namespace zinc

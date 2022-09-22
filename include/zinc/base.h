@@ -18,25 +18,24 @@
 #include <cstring>
 
 namespace zinc {
-template <typename TMove,
-          typename MovedType = typename std::remove_reference<TMove>::type &&>
-inline constexpr auto move(TMove &&value) -> MovedType {
-  return static_cast<MovedType>(value);
+
+struct panic_data {
+  const char *msg;
 };
 
 template <typename T> inline constexpr auto drop(T &&) -> void {}
 
-template <typename Type> inline constexpr void swap(Type &a, Type &b) {
-  Type temp = drop(a);
-  a = drop(b);
-  b = drop(temp);
+template <typename TAs>
+[[nodiscard]] inline constexpr auto as(TAs &&value) noexcept -> TAs && {
+  return static_cast<TAs &&>(value);
 }
 
-template <class TForward>
-[[nodiscard]] constexpr auto
-forward(std::remove_reference_t<TForward> &Arg) noexcept -> TForward && {
-  return static_cast<TForward &&>(Arg);
-}
+inline auto panic(char const *msg) -> void { throw panic_data{msg}; }
+
+template <typename From, typename To>
+using safe_upcast = std::conjunction<std::is_convertible<To *, From *>,
+                                     std::negation<std::is_array<To *>>>;
+
 } // namespace zinc
 
 // nice typedefs

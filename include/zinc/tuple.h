@@ -83,7 +83,7 @@ auto operator!=(tuple<TElements...> &a, tuple<TElements...> &b) -> bool {
 
 template <typename... TElements>
 auto make_tuple(TElements &&...elements) -> tuple<TElements...> {
-  return tuple<TElements...>(forward<TElements>(elements)...);
+  return tuple<TElements...>(std::forward<TElements>(elements)...);
 }
 
 template <typename... TElements>

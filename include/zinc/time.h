@@ -90,7 +90,7 @@ struct duration {
         return None;
     }
     ZINC_ASSERT(nanos < NANOSECONDS_PER_SECOND);
-    return some(duration(added_seconds.value(), nanos));
+    return Some(duration(added_seconds.value(), nanos));
   }
 
   [[nodiscard]] inline auto saturating_add(duration const &rhs) const
@@ -113,7 +113,7 @@ struct duration {
         nano = NANOSECONDS_PER_SECOND + m_nanoseconds - rhs.m_nanoseconds;
       }
       ZINC_ASSERT(nano < NANOSECONDS_PER_SECOND);
-      return some(duration(subbed_seconds.value(), nano));
+      return Some(duration(subbed_seconds.value(), nano));
     }
     return None;
   }
@@ -133,7 +133,7 @@ struct duration {
       secs = ::zinc::checked_add(secs.value(), extra_seconds);
       if (secs.has_value()) {
         ZINC_ASSERT(nanos < NANOSECONDS_PER_SECOND);
-        return some(duration(secs.value(), nanos));
+        return Some(duration(secs.value(), nanos));
       }
     }
     return None;
@@ -143,6 +143,59 @@ struct duration {
     if (auto result = checked_mul(rhs))
       return result.value();
     return MAX;
+  }
+
+  [[nodiscard]] inline auto checked_div(u64 rhs) const -> option<duration> {
+    if (rhs == 0)
+      return None;
+    auto secs = m_seconds / rhs;
+    auto carry = m_seconds - secs * rhs;
+    auto extra_nanos = carry * NANOSECONDS_PER_SECOND / rhs;
+    auto nanos = m_nanoseconds / rhs + extra_nanos;
+    ZINC_ASSERT(nanos < NANOSECONDS_PER_SECOND);
+    return Some(duration(secs, nanos));
+  }
+
+  template <typename TFloatType, typename = typename std::enable_if_t<
+                                     std::is_floating_point_v<TFloatType>>>
+  [[nodiscard]] inline auto as_seconds_floating() const -> TFloatType {
+    return as<TFloatType>(m_seconds) +
+           as<TFloatType>(m_nanoseconds) /
+               as<TFloatType>(NANOSECONDS_PER_SECOND);
+  }
+
+  // operators
+  [[nodiscard]] inline auto operator==(duration const &rhs) const -> bool {
+    return m_seconds == rhs.m_seconds && m_nanoseconds == rhs.m_nanoseconds;
+  }
+  [[nodiscard]] inline auto operator!=(duration const &rhs) const -> bool {
+    return !(*this == rhs);
+  }
+  [[nodiscard]] inline auto operator<(duration const &rhs) const -> bool {
+    return m_seconds < rhs.m_seconds ||
+           (m_seconds == rhs.m_seconds && m_nanoseconds < rhs.m_nanoseconds);
+  }
+  [[nodiscard]] inline auto operator<=(duration const &rhs) const -> bool {
+    return *this < rhs || *this == rhs;
+  }
+  [[nodiscard]] inline auto operator>(duration const &rhs) const -> bool {
+    return !(*this <= rhs);
+  }
+  [[nodiscard]] inline auto operator>=(duration const &rhs) const -> bool {
+    return !(*this < rhs);
+  }
+
+  [[nodiscard]] inline auto operator+(duration const &rhs) const -> duration {
+    return saturating_add(rhs);
+  }
+  [[nodiscard]] inline auto operator-(duration const &rhs) const -> duration {
+    return saturating_sub(rhs);
+  }
+  [[nodiscard]] inline auto operator*(u64 rhs) const -> duration {
+    return saturating_mul(rhs);
+  }
+  [[nodiscard]] inline auto operator/(u64 rhs) const -> duration {
+    return checked_div(rhs).value();
   }
 };
 } // namespace zinc

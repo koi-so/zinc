@@ -1,5 +1,5 @@
-#include "zinc/option_result_fwd.h"
+#include "zinc/option.h"
 
 namespace zinc {
-ZINC_API details::none none{};
+ZINC_API nullopt_t None{nullopt_t::init{}};
 }

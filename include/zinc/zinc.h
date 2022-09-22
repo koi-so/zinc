@@ -5,7 +5,6 @@
 #include "zinc/debug.h"
 #include "zinc/func.h"
 #include "zinc/option.h"
-#include "zinc/result.h"
 #include "zinc/time.h"
 #include "zinc/tuple.h"
 #include "zinc/unit.h"

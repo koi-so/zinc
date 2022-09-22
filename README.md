@@ -1,3 +1,3 @@
 # Zinc
 
-Zinc is a project attempting to bring fome of the nice things of rust to C++.
+Mostly for personal use, has some containers and things from rust core crate.
