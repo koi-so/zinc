@@ -7,4 +7,5 @@
 #include "zinc/option.h"
 #include "zinc/time.h"
 #include "zinc/tuple.h"
+#include "zinc/unique.h"
 #include "zinc/unit.h"
