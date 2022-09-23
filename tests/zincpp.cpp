@@ -18,5 +18,11 @@ auto main() -> int {
 
   zinc::duration s(0, 500'000'001);
   std::cout << s.checked_mul(6).value().as_seconds_floating<f64>() << std::endl;
+
+  auto talloc = zinc::heap_allocator<i32>{};
+  i32 *p = talloc.allocate(1);
+  *p = 43;
+  std::cout << *p << std::endl;
+  talloc.deallocate(p, 1);
   return 0;
 }

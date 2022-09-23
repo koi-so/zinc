@@ -16,6 +16,7 @@
 // These are only available on devices that have a functional kernel
 #include <cstdio>
 #include <cstring>
+#include <memory>
 
 namespace zinc {
 
