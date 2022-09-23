@@ -5,7 +5,7 @@ elseif is_mode("release") then
 end
 
 target("zinc")
-    set_kind("$(kind)")
+    set_kind("static")
     add_includedirs("include", {public = true})
     if is_kind("shared") then
         add_defines("ZINC_CONFIG_SHARED_LIB" , "ZINC_EXPORTS")
