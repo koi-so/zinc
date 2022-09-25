@@ -7,22 +7,19 @@ using namespace zinc;
 template struct zinc::option<i32>;
 
 auto main() -> int {
-  option<i32> g = Some(2);
-  g = g.map<i32>([](i32 const &x) { return x + 1; });
-  g = g.map<i32>([](i32 const &x) { return x + 1; });
-  g = g.map<i32>([](i32 const &x) { return x + 1; });
-  std::cout << g.value() << std::endl;
+  auto data_pool = zinc::pool(sizeof(i32), 1000);
+  auto pool_alloc = zinc::pool_allocator<i32>{data_pool};
 
-  option<i64> f = Some(16);
-  std::cout << (f == g) << std::endl;
+  auto v = zinc::vec<i32, zinc::pool_allocator<i32>>{pool_alloc};
+  v.push_back(1);
+  v.push_back(2);
+  v.push_back(3);
 
-  zinc::duration s(0, 500'000'001);
-  std::cout << s.checked_mul(6).value().as_seconds_floating<f64>() << std::endl;
+  v.pop_back();
 
-  auto talloc = zinc::heap_allocator<i32>{};
-  i32 *p = talloc.allocate(1);
-  *p = 43;
-  std::cout << *p << std::endl;
-  talloc.deallocate(p, 1);
+  for (auto &x : v) {
+    std::cout << x << std::endl;
+  }
+
   return 0;
 }

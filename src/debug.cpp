@@ -9,8 +9,7 @@ extern "C" __declspec(dllimport) void __stdcall OutputDebugStringA(
 #endif
 
 namespace zinc {
-ZINC_API void DefaultAssertHandler(const char *text, const char *sourcefile,
-                                   u32 line) {
+void DefaultAssertHandler(const char *text, const char *sourcefile, u32 line) {
   char output_text[2048];
   if (sourcefile) {
     snprintf(output_text, sizeof(output_text), "%s(%d): ASSERT FAILURE - ",
@@ -34,12 +33,11 @@ ZINC_API void DefaultAssertHandler(const char *text, const char *sourcefile,
 
 static AssertCallback *s_assert_handler = DefaultAssertHandler;
 
-ZINC_API void SetAssertCallback(AssertCallback *callback) {
+void SetAssertCallback(AssertCallback *callback) {
   s_assert_handler = callback ? callback : DefaultAssertHandler;
 }
 
-ZINC_API void DebugMessage(const char *sourcefile, u32 line,
-                           const char *fmt...) {
+void DebugMessage(const char *sourcefile, u32 line, const char *fmt...) {
   char text[2048];
 
   va_list args;

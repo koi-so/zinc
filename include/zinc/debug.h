@@ -5,9 +5,8 @@
 namespace zinc {
 using AssertCallback = void(char const *, char const *, u32);
 
-ZINC_API void DebugMessage(char const *sourcefile, u32 line,
-                           char const *fmt...);
-ZINC_API void SetAssertCallback(AssertCallback *callback);
+void DebugMessage(char const *sourcefile, u32 line, char const *fmt...);
+void SetAssertCallback(AssertCallback *callback);
 } // namespace zinc
 
 #if ZINC_COMPILER_MSVC && !ZINC_COMPILER_CLANG_CL

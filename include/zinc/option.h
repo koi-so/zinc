@@ -10,7 +10,7 @@ struct nullopt_t {
   constexpr explicit nullopt_t(init) {}
 };
 
-extern ZINC_API nullopt_t None;
+extern nullopt_t None;
 
 template <typename TValue> struct option {
 public:

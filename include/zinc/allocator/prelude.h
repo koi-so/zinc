@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../base.h"
-#include "heap.h"
-
-namespace zinc {} // namespace zinc
+#include "pool.h"
+#include "sys.h"
+#include "zinc/base.h"
