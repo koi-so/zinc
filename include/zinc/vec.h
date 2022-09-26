@@ -3,6 +3,7 @@
 #include "allocator/prelude.h"
 #include "base.h"
 #include "debug.h"
+#include "option.h"
 
 namespace zinc {
 template <class TValue>
@@ -127,6 +128,21 @@ public:
   inline auto operator[](size_type position) const -> TValue const & {
     ZINC_ASSERTF(position < m_size, "Index out of range");
     return m_data[position];
+  }
+
+  inline auto get(size_type position) -> option<TValue> {
+    if (position < m_size) {
+      return m_data[position];
+    } else {
+      return None;
+    }
+  }
+  inline auto get(size_type position) const -> option<TValue const> {
+    if (position < m_size) {
+      return m_data[position];
+    } else {
+      return None;
+    }
   }
 
   inline auto front() -> TValue & {

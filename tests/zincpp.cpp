@@ -21,5 +21,8 @@ auto main() -> int {
     std::cout << x << std::endl;
   }
 
+  auto r = v.get(1);
+  std::cout << r.has_value() << std::endl;
+
   return 0;
 }
