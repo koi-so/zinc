@@ -47,16 +47,9 @@ public:
   using size_type = typename allocator_traits::size_type;
   using difference_type = typename allocator_traits::difference_type;
 
-  inline vec() {
-    static_assert(std::is_nothrow_constructible_v<TAllocator>,
-                  "TAllocator must be nothrow constructible");
-    m_allocator = TAllocator();
-  }
-
   inline explicit vec(TAllocator &allocator) : m_allocator(allocator) {}
 
-  inline explicit vec(size_type const count,
-                      TAllocator &allocator = TAllocator())
+  inline explicit vec(size_type const count, TAllocator &allocator)
       : m_allocator(allocator), m_size(count), m_capacity(count) {
     m_allocator = allocator;
     m_data = allocator_traits::allocate(m_allocator, m_capacity);

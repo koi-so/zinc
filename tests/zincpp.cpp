@@ -11,8 +11,8 @@ auto main() -> int {
 
   auto pool_alloc = zinc::pool_allocator<char>{data_pool};
   auto str = zinc::string<zinc::pool_allocator<char>>{"hi😂 ", pool_alloc};
-  str += zinc::string("eggs");
-  std::cout << str.data() << std::endl;
+  str += zinc::string("eggs", pool_alloc);
+  std::cout << str.as_string_view().data() << std::endl;
 
   return 0;
 }
