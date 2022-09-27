@@ -38,7 +38,10 @@ public:
       : string(str, len, TAllocator()) {}
 
   inline auto operator=(string const &other) -> string & {
-    m_buffer = other.m_buffer;
+    auto len = other.length();
+    m_buffer.resize(len + 1);
+    memcpy(m_buffer.data(), other.data(), len);
+    m_buffer[len] = '\0';
     return *this;
   }
   inline auto operator=(string &&other) -> string & {
