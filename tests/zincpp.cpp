@@ -10,7 +10,7 @@ auto main() -> int {
   auto data_pool = zinc::pool(sizeof(char), 1000);
 
   auto pool_alloc = zinc::pool_allocator<char>{data_pool};
-  auto str = zinc::string<zinc::pool_allocator<char>>{"hi😂 ", pool_alloc};
+  auto str = zinc::string("hi😂 ");
   str += zinc::string("eggs", pool_alloc);
   std::cout << str.as_string_view().data() << std::endl;
 

@@ -13,17 +13,20 @@ public:
   using size_type = usize;
 
   inline explicit string(TAllocator const &allocator) : m_buffer(allocator) {}
+  inline string() : string(TAllocator()) {}
   inline explicit string(size_type const count, TAllocator const &allocator)
       : m_buffer(count + 1, allocator) {
     m_buffer[count] = '\0';
   }
   inline string(string_view &view, TAllocator const &allocator);
+  inline string(string_view &view) : string(view, TAllocator()) {}
 
   inline string(string const &other) : m_buffer(other.m_buffer) {}
   inline string(string &&other) : m_buffer(std::move(other.m_buffer)) {}
 
   inline string(char const *str, TAllocator &allocator)
       : string(str, strlen(str), allocator) {}
+  inline string(char const *str) : string(str, strlen(str), TAllocator()) {}
 
   inline string(char const *str, size_type const len, TAllocator &allocator)
       : m_buffer(allocator) {
@@ -31,6 +34,8 @@ public:
     memcpy(m_buffer.data(), str, len);
     m_buffer[len] = '\0';
   }
+  inline string(char const *str, size_type const len)
+      : string(str, len, TAllocator()) {}
 
   inline auto operator=(string const &other) -> string & {
     m_buffer = other.m_buffer;
