@@ -47,8 +47,10 @@ public:
   }
 
   inline auto operator=(char const *str) -> string & {
-    m_buffer.clear();
-    append(str);
+    auto const len = strlen(str);
+    m_buffer.resize(len + 1);
+    memcpy(m_buffer.data(), str, len);
+    m_buffer[len] = '\0';
     return *this;
   }
 
