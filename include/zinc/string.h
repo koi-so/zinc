@@ -5,6 +5,8 @@
 #include "debug.h"
 #include "vec.h"
 
+#include <iostream>
+
 namespace zinc {
 struct string_view;
 
@@ -21,7 +23,9 @@ public:
   inline string(string_view &view, TAllocator const &allocator);
   inline string(string_view &view) : string(view, TAllocator()) {}
 
-  inline string(string const &other) : m_buffer(other.m_buffer) {}
+  inline string(string const &other) : m_buffer(other.m_buffer) {
+    m_buffer[m_buffer.size()] = '\0';
+  }
   inline string(string &&other) : m_buffer(std::move(other.m_buffer)) {}
 
   inline string(char const *str, TAllocator &allocator)

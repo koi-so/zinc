@@ -64,7 +64,7 @@ public:
   inline vec(vec const &other)
       : m_allocator(other.m_allocator), m_size(other.m_size),
         m_capacity(other.m_capacity) {
-    m_data = allocator_traits::allocate(m_allocator, m_capacity);
+    m_data = allocator_traits::allocate(m_allocator, m_size);
     if constexpr (std::is_trivial_v<TValue>) {
       std::memcpy(m_data, other.m_data, m_capacity * sizeof(TValue));
     } else {
@@ -186,6 +186,7 @@ public:
 
     allocator_traits::deallocate(m_allocator, m_data, m_capacity);
     m_data = new_data;
+    m_capacity = new_capacity;
   }
   [[nodiscard]] inline auto capacity() const noexcept -> size_type {
     return m_capacity;
