@@ -31,7 +31,7 @@ template <class TValue> inline void destruct_range(TValue *begin, TValue *end) {
 }
 
 template <typename TValue, typename TAllocator = sys_allocator<TValue>>
-struct vec {
+struct dyn_array {
 private:
   using rebind_allocator =
       typename std::allocator_traits<TAllocator>::template rebind_alloc<TValue>;
@@ -47,9 +47,9 @@ public:
   using size_type = typename allocator_traits::size_type;
   using difference_type = typename allocator_traits::difference_type;
 
-  inline explicit vec(TAllocator &allocator) : m_allocator(allocator) {}
+  inline explicit dyn_array(TAllocator &allocator) : m_allocator(allocator) {}
 
-  inline explicit vec(size_type const count, TAllocator &allocator)
+  inline explicit dyn_array(size_type const count, TAllocator &allocator)
       : m_allocator(allocator), m_size(count), m_capacity(count) {
     m_allocator = allocator;
     m_data = allocator_traits::allocate(m_allocator, m_capacity);
@@ -61,7 +61,7 @@ public:
     }
   }
 
-  inline vec(vec const &other)
+  inline dyn_array(dyn_array const &other)
       : m_allocator(other.m_allocator), m_size(other.m_size),
         m_capacity(other.m_capacity) {
     m_data = allocator_traits::allocate(m_allocator, m_size);
@@ -71,14 +71,14 @@ public:
       copy_range(other.m_data, other.m_data + m_size, m_data);
     }
   }
-  inline vec(vec &&other) noexcept
+  inline dyn_array(dyn_array &&other) noexcept
       : m_allocator(other.m_allocator), m_data(other.m_data),
         m_size(other.m_size), m_capacity(other.m_capacity) {
     other.m_data = nullptr;
     other.m_size = 0;
     other.m_capacity = 0;
   }
-  inline auto operator=(vec const &other) -> vec & {
+  inline auto operator=(dyn_array const &other) -> dyn_array & {
     m_allocator = other.m_allocator;
     m_size = other.m_size;
     m_capacity = other.m_capacity;
@@ -92,7 +92,7 @@ public:
 
     return *this;
   }
-  inline auto operator=(vec &&other) noexcept -> vec & {
+  inline auto operator=(dyn_array &&other) noexcept -> dyn_array & {
     m_allocator = other.m_allocator;
     m_data = other.m_data;
     m_size = other.m_size;
@@ -105,7 +105,7 @@ public:
     return *this;
   }
 
-  inline ~vec() {
+  inline ~dyn_array() {
     if (m_data) {
       if constexpr (!std::is_trivial_v<TValue>) {
         destruct_range(m_data, m_data + m_size);
@@ -139,20 +139,20 @@ public:
   }
 
   inline auto front() -> TValue & {
-    ZINC_ASSERTF(m_size > 0, "Vec is empty");
+    ZINC_ASSERTF(m_size > 0, "dyn_array is empty");
     return m_data[0];
   }
   inline auto front() const -> TValue const & {
-    ZINC_ASSERTF(m_size > 0, "Vec is empty");
+    ZINC_ASSERTF(m_size > 0, "dyn_array is empty");
     return m_data[0];
   }
 
   inline auto back() -> TValue & {
-    ZINC_ASSERTF(m_size > 0, "Vec is empty");
+    ZINC_ASSERTF(m_size > 0, "dyn_array is empty");
     return m_data[m_size - 1];
   }
   inline auto back() const -> TValue const & {
-    ZINC_ASSERTF(m_size > 0, "Vec is empty");
+    ZINC_ASSERTF(m_size > 0, "dyn_array is empty");
     return m_data[m_size - 1];
   }
 
@@ -250,7 +250,7 @@ public:
   }
 
   inline void pop_back() {
-    ZINC_ASSERTF(m_size > 0, "Vec is empty");
+    ZINC_ASSERTF(m_size > 0, "dyn_array is empty");
     if constexpr (!std::is_trivial_v<TValue>) {
       m_data[m_size - 1].~TValue();
     }

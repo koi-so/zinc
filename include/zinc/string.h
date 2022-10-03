@@ -3,7 +3,7 @@
 #include "allocator/prelude.h"
 #include "base.h"
 #include "debug.h"
-#include "vec.h"
+#include "dyn_array.h"
 
 #include <iostream>
 
@@ -111,7 +111,7 @@ public:
   inline operator string_view() const;
 
 private:
-  vec<char, TAllocator> m_buffer;
+  dyn_array<char, TAllocator> m_buffer;
 };
 
 struct string_view {
