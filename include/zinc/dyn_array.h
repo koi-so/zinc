@@ -302,8 +302,10 @@ public:
     m_size = count;
   }
 
-  auto as_array_view() const -> array_view<TValue>;
-  operator array_view<TValue>() const;
+  template <typename TOtherValue, typename = safe_upcast<TOtherValue, TValue>>
+  auto as_array_view() const -> array_view<TOtherValue>;
+  template <typename TOtherValue, typename = safe_upcast<TOtherValue, TValue>>
+  operator array_view<TOtherValue>() const;
 
   static constexpr size_type grow_factor = 2;
 
@@ -373,13 +375,15 @@ dyn_array<TValue, TAllocator>::dyn_array(
     : dyn_array(arr_view.data(), arr_view.size(), allocator) {}
 
 template <typename TValue, typename TAllocator>
+template <typename TOtherValue, typename>
 auto dyn_array<TValue, TAllocator>::as_array_view() const
-    -> array_view<TValue> {
+    -> array_view<TOtherValue> {
   return array_view<TValue>(m_data, m_size);
 }
 
 template <typename TValue, typename TAllocator>
-dyn_array<TValue, TAllocator>::operator array_view<TValue>() const {
+template <typename TOtherValue, typename>
+dyn_array<TValue, TAllocator>::operator array_view<TOtherValue>() const {
   return as_array_view();
 }
 
