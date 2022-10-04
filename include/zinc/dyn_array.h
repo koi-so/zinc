@@ -77,13 +77,13 @@ public:
     }
   }
 
-  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  template <typename TOtherValue, typename = safe_upcast<TOtherValue, TValue>>
   inline dyn_array(array_view<TOtherValue> const &arr_view);
-  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  template <typename TOtherValue, typename = safe_upcast<TOtherValue, TValue>>
   inline dyn_array(array_view<TOtherValue> const &arr_view,
                    TAllocator &allocator);
 
-  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  template <typename TOtherValue, typename = safe_upcast<TOtherValue, TValue>>
   inline dyn_array(dyn_array<TOtherValue> const &other)
       : m_allocator(other.m_allocator), m_size(other.m_size),
         m_capacity(other.m_capacity) {
@@ -94,7 +94,7 @@ public:
       copy_range(other.m_data, other.m_data + m_size, m_data);
     }
   }
-  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  template <typename TOtherValue, typename = safe_upcast<TOtherValue, TValue>>
   inline dyn_array(dyn_array<TOtherValue> &&other) noexcept
       : m_allocator(other.m_allocator), m_data(other.m_data),
         m_size(other.m_size), m_capacity(other.m_capacity) {
@@ -102,7 +102,7 @@ public:
     other.m_size = 0;
     other.m_capacity = 0;
   }
-  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  template <typename TOtherValue, typename = safe_upcast<TOtherValue, TValue>>
   inline auto operator=(dyn_array<TOtherValue> const &other) -> dyn_array & {
     m_allocator = other.m_allocator;
     m_size = other.m_size;
@@ -117,7 +117,7 @@ public:
 
     return *this;
   }
-  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  template <typename TOtherValue, typename = safe_upcast<TOtherValue, TValue>>
   inline auto operator=(dyn_array<TOtherValue> &&other) noexcept
       -> dyn_array & {
     m_allocator = other.m_allocator;
@@ -361,13 +361,13 @@ private:
 };
 
 template <typename TValue, typename TAllocator>
-template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+template <typename TOtherValue, typename>
 dyn_array<TValue, TAllocator>::dyn_array(
     array_view<TOtherValue> const &arr_view)
     : dyn_array(arr_view, TAllocator()) {}
 
 template <typename TValue, typename TAllocator>
-template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+template <typename TOtherValue, typename>
 dyn_array<TValue, TAllocator>::dyn_array(
     array_view<TOtherValue> const &arr_view, TAllocator &allocator)
     : dyn_array(arr_view.data(), arr_view.size(), allocator) {}
