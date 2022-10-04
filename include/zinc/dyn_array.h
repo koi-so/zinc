@@ -6,6 +6,8 @@
 #include "option.h"
 
 namespace zinc {
+template <typename TValue> struct array_view;
+
 template <class TValue>
 inline void construct_range(TValue *begin, TValue *end) {
   while (begin != end) {
@@ -49,9 +51,8 @@ public:
 
   inline explicit dyn_array(TAllocator &allocator) : m_allocator(allocator) {}
 
-  inline explicit dyn_array(size_type const count, TAllocator &allocator)
+  inline dyn_array(size_type const count, TAllocator &allocator)
       : m_allocator(allocator), m_size(count), m_capacity(count) {
-    m_allocator = allocator;
     m_data = allocator_traits::allocate(m_allocator, m_capacity);
 
     if constexpr (std::is_trivial_v<TValue>) {
@@ -60,6 +61,23 @@ public:
       construct_range(m_data, m_data + m_size);
     }
   }
+
+  inline dyn_array(TValue const *data, size_type const count)
+      : dyn_array(data, count, TAllocator()) {}
+  inline dyn_array(TValue const *data, size_type const count,
+                   TAllocator &allocator)
+      : m_allocator(allocator), m_size(count), m_capacity(count) {
+    m_data = allocator_traits::allocate(m_allocator, m_capacity);
+
+    if constexpr (std::is_trivial_v<TValue>) {
+      std::memcpy(m_data, data, m_capacity * sizeof(TValue));
+    } else {
+      copy_range(data, data + m_size, m_data);
+    }
+  }
+
+  inline dyn_array(array_view<TValue> const &arr_view);
+  inline dyn_array(array_view<TValue> const &arr_view, TAllocator &allocator);
 
   inline dyn_array(dyn_array const &other)
       : m_allocator(other.m_allocator), m_size(other.m_size),
@@ -275,6 +293,9 @@ public:
     m_size = count;
   }
 
+  auto as_array_view() const -> array_view<TValue>;
+  operator array_view<TValue>() const;
+
   static constexpr size_type grow_factor = 2;
 
 private:
@@ -283,4 +304,71 @@ private:
   size_type m_size = 0;
   size_type m_capacity = 0;
 };
+
+template <typename TValue> struct array_view {
+public:
+  using value_type = TValue;
+  using size_type = size_t;
+  using difference_type = ptrdiff_t;
+  using reference = TValue &;
+  using const_reference = TValue const &;
+  using pointer = TValue *;
+  using const_pointer = TValue const *;
+
+  array_view() = default;
+  array_view(array_view const &) = default;
+  array_view(array_view &&) = default;
+  auto operator=(array_view const &) -> array_view & = default;
+  auto operator=(array_view &&) -> array_view & = default;
+
+  inline array_view(TValue const *data, size_type size)
+      : m_data(data), m_size(size) {}
+
+  inline auto operator[](size_type index) const -> TValue const & {
+    ZINC_ASSERTF(index < m_size, "Index out of bounds");
+    return m_data[index];
+  }
+
+  inline auto front() const -> TValue const & {
+    ZINC_ASSERTF(m_size > 0, "array is empty");
+    return m_data[0];
+  }
+  inline auto back() const -> TValue const & {
+    ZINC_ASSERTF(m_size > 0, "array is empty");
+    return m_data[m_size - 1];
+  }
+
+  inline auto data() const -> TValue const * { return m_data; }
+  inline auto begin() const -> TValue const * { return m_data; }
+  inline auto end() const -> TValue const * { return m_data + m_size; }
+
+  [[nodiscard]] inline auto size() const noexcept -> size_type {
+    return m_size;
+  }
+
+private:
+  TValue const *m_data = nullptr;
+  typename dyn_array<TValue>::size_type m_size = 0;
+};
+
+template <typename TValue, typename TAllocator>
+dyn_array<TValue, TAllocator>::dyn_array(array_view<TValue> const &arr_view)
+    : dyn_array(arr_view, TAllocator()) {}
+
+template <typename TValue, typename TAllocator>
+dyn_array<TValue, TAllocator>::dyn_array(array_view<TValue> const &arr_view,
+                                         TAllocator &allocator)
+    : dyn_array(arr_view.data(), arr_view.size(), allocator) {}
+
+template <typename TValue, typename TAllocator>
+auto dyn_array<TValue, TAllocator>::as_array_view() const
+    -> array_view<TValue> {
+  return array_view<TValue>(m_data, m_size);
+}
+
+template <typename TValue, typename TAllocator>
+dyn_array<TValue, TAllocator>::operator array_view<TValue>() const {
+  return as_array_view();
+}
+
 } // namespace zinc
