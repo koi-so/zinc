@@ -77,41 +77,49 @@ public:
     }
   }
 
-  inline dyn_array(array_view<TValue> const &arr_view);
-  inline dyn_array(array_view<TValue> const &arr_view, TAllocator &allocator);
+  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  inline dyn_array(array_view<TOtherValue> const &arr_view);
+  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  inline dyn_array(array_view<TOtherValue> const &arr_view,
+                   TAllocator &allocator);
 
-  inline dyn_array(dyn_array const &other)
+  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  inline dyn_array(dyn_array<TOtherValue> const &other)
       : m_allocator(other.m_allocator), m_size(other.m_size),
         m_capacity(other.m_capacity) {
     m_data = allocator_traits::allocate(m_allocator, m_size);
-    if constexpr (std::is_trivial_v<TValue>) {
-      std::memcpy(m_data, other.m_data, m_capacity * sizeof(TValue));
+    if constexpr (std::is_trivial_v<TOtherValue>) {
+      std::memcpy(m_data, other.m_data, m_capacity * sizeof(TOtherValue));
     } else {
       copy_range(other.m_data, other.m_data + m_size, m_data);
     }
   }
-  inline dyn_array(dyn_array &&other) noexcept
+  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  inline dyn_array(dyn_array<TOtherValue> &&other) noexcept
       : m_allocator(other.m_allocator), m_data(other.m_data),
         m_size(other.m_size), m_capacity(other.m_capacity) {
     other.m_data = nullptr;
     other.m_size = 0;
     other.m_capacity = 0;
   }
-  inline auto operator=(dyn_array const &other) -> dyn_array & {
+  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  inline auto operator=(dyn_array<TOtherValue> const &other) -> dyn_array & {
     m_allocator = other.m_allocator;
     m_size = other.m_size;
     m_capacity = other.m_capacity;
 
     m_data = allocator_traits::allocate(m_allocator, m_capacity);
-    if constexpr (std::is_trivial_v<TValue>) {
-      std::memcpy(m_data, other.m_data, m_capacity * sizeof(TValue));
+    if constexpr (std::is_trivial_v<TOtherValue>) {
+      std::memcpy(m_data, other.m_data, m_capacity * sizeof(TOtherValue));
     } else {
       copy_range(other.m_data, other.m_data + m_size, m_data);
     }
 
     return *this;
   }
-  inline auto operator=(dyn_array &&other) noexcept -> dyn_array & {
+  template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+  inline auto operator=(dyn_array<TOtherValue> &&other) noexcept
+      -> dyn_array & {
     m_allocator = other.m_allocator;
     m_data = other.m_data;
     m_size = other.m_size;
@@ -353,12 +361,15 @@ private:
 };
 
 template <typename TValue, typename TAllocator>
-dyn_array<TValue, TAllocator>::dyn_array(array_view<TValue> const &arr_view)
+template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+dyn_array<TValue, TAllocator>::dyn_array(
+    array_view<TOtherValue> const &arr_view)
     : dyn_array(arr_view, TAllocator()) {}
 
 template <typename TValue, typename TAllocator>
-dyn_array<TValue, TAllocator>::dyn_array(array_view<TValue> const &arr_view,
-                                         TAllocator &allocator)
+template <typename TOtherValue, safe_upcast<TOtherValue, TValue>>
+dyn_array<TValue, TAllocator>::dyn_array(
+    array_view<TOtherValue> const &arr_view, TAllocator &allocator)
     : dyn_array(arr_view.data(), arr_view.size(), allocator) {}
 
 template <typename TValue, typename TAllocator>
