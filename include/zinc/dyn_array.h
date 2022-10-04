@@ -50,6 +50,7 @@ public:
   using difference_type = typename allocator_traits::difference_type;
 
   inline explicit dyn_array(TAllocator &allocator) : m_allocator(allocator) {}
+  inline dyn_array() : dyn_array(TAllocator()) {}
 
   inline dyn_array(size_type const count, TAllocator &allocator)
       : m_allocator(allocator), m_size(count), m_capacity(count) {
