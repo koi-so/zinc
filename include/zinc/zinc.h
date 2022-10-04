@@ -1,5 +1,6 @@
 #pragma once
 
+#include "zinc/algorithm.h"
 #include "zinc/allocator/prelude.h"
 #include "zinc/base.h"
 #include "zinc/checked_int.h"
