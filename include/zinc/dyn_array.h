@@ -39,6 +39,9 @@ private:
       typename std::allocator_traits<TAllocator>::template rebind_alloc<TValue>;
   using allocator_traits = std::allocator_traits<rebind_allocator>;
 
+  template <typename TOtherValue, typename TOtherAllocator>
+  friend struct dyn_array;
+
 public:
   using value_type = TValue;
   using allocator_type = TAllocator;
@@ -121,7 +124,7 @@ public:
   inline auto operator=(dyn_array<TOtherValue> &&other) noexcept
       -> dyn_array & {
     m_allocator = other.m_allocator;
-    m_data = other.m_data;
+    m_data = reinterpret_cast<TValue *>(other.m_data);
     m_size = other.m_size;
     m_capacity = other.m_capacity;
 
