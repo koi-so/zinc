@@ -378,7 +378,7 @@ template <typename TValue, typename TAllocator>
 template <typename TOtherValue, typename>
 auto dyn_array<TValue, TAllocator>::as_array_view() const
     -> array_view<TOtherValue> {
-  return array_view<TValue>(m_data, m_size);
+  return array_view<TOtherValue>(m_data, m_size);
 }
 
 template <typename TValue, typename TAllocator>
