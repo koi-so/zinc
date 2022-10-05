@@ -107,6 +107,11 @@ public:
 
   auto get_allocator() const -> A &;
 
+  auto to_array_view() const -> array_view<T>;
+  operator array_view<T>() const;
+  vector(const array_view<T> &, A &allocator);
+  vector(const array_view<T> &);
+
 private:
   using alloc = std::allocator_traits<A>;
 
@@ -756,4 +761,23 @@ private:
   const T *m_arr = nullptr;
   size_type m_size = 0;
 };
+
+template <typename T, typename A>
+auto vector<T, A>::to_array_view() const -> array_view<T> {
+  return array_view<T>(m_arr, m_size);
+}
+
+template <typename T, typename A> vector<T, A>::operator array_view<T>() const {
+  return to_array_view();
+}
+
+template <typename T, typename A>
+vector<T, A>::vector(const array_view<T> &view, A &allocator)
+    : vector(view.size(), allocator) {
+  for (size_type i = 0; i < view.size(); ++i)
+    m_arr[i] = view[i];
+}
+
+template <typename T, typename A>
+vector<T, A>::vector(const array_view<T> &view) : vector(view, A()) {}
 } // namespace zinc
