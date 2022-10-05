@@ -126,6 +126,7 @@ private:
 template <typename T, typename A>
 vector<T, A>::vector(A &allocator) : m_allocator(allocator) {
   m_arr = alloc::allocate(m_allocator, m_capacity);
+  memset(m_arr, 0, m_capacity * sizeof(T));
 }
 
 template <typename T, typename A> vector<T, A>::vector() : vector(A()) {}
@@ -341,9 +342,10 @@ auto vector<T, A>::crend() const noexcept ->
 
 template <typename T, typename A> inline void vector<T, A>::reallocate() {
   pointer new_arr = alloc::allocate(m_allocator, m_capacity);
+  memset(new_arr + m_size, 0, (m_capacity - m_size) * sizeof(T));
   if constexpr (!std::is_trivial_v<T>)
     for (size_type i = m_size; i < m_capacity; i++) {
-      new_arr[i] = T();
+      alloc::construct(m_allocator, new_arr[i]);
     }
   memcpy(new_arr, m_arr, m_size * sizeof(T));
   alloc::deallocate(m_allocator, m_arr, m_capacity);
