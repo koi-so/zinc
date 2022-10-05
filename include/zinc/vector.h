@@ -5,8 +5,6 @@
 #include "debug.h"
 #include "option.h"
 
-#include <iostream>
-
 namespace zinc {
 template <typename TValue> struct array_view;
 
