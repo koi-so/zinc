@@ -135,7 +135,7 @@ vector<T, A>::vector(size_type size, A &allocator)
     : m_allocator(allocator), m_capacity(size), m_size(size) {
   m_arr = alloc::allocate(m_allocator, m_capacity);
   for (size_type i = 0; i < m_size; i++) {
-    m_arr[i] = T();
+    alloc::construct(m_allocator, m_arr[i]);
   }
 }
 
@@ -147,7 +147,7 @@ vector<T, A>::vector(size_type n, const T &val, A &allocator)
     : m_allocator(allocator), m_capacity(n), m_size(n) {
   m_arr = alloc::allocate(m_allocator, m_capacity);
   for (size_type i = 0; i < m_size; i++) {
-    m_arr[i] = val;
+    alloc::construct(m_allocator, m_arr[i], val);
   }
 }
 
@@ -163,7 +163,7 @@ vector<T, A>::vector(InputIt first, InputIt last, A &allocator)
   m_size = count;
   m_arr = alloc::allocate(m_allocator, m_capacity);
   for (size_type i = 0; i < m_size; i++) {
-    m_arr[i] = first[i];
+    alloc::construct(m_allocator, m_arr[i], first[i]);
   }
 }
 
@@ -179,7 +179,7 @@ vector<T, A>::vector(std::initializer_list<T> init, A &allocator)
   m_arr = alloc::allocate(m_allocator, m_capacity);
   m_size = 0;
   for (auto &item : init) {
-    m_arr[m_size++] = item;
+    alloc::construct(m_allocator, m_arr[m_size++], item);
   }
 }
 
@@ -192,7 +192,7 @@ vector<T, A>::vector(const vector<T, A> &other)
       m_size(other.m_size) {
   m_arr = alloc::allocate(m_allocator, m_capacity);
   for (size_type i = 0; i < m_size; i++) {
-    m_arr[i] = other.m_arr[i];
+    alloc::construct(m_allocator, m_arr[i], other.m_arr[i]);
   }
 }
 
@@ -341,6 +341,10 @@ auto vector<T, A>::crend() const noexcept ->
 
 template <typename T, typename A> inline void vector<T, A>::reallocate() {
   pointer new_arr = alloc::allocate(m_allocator, m_capacity);
+  if constexpr (!std::is_trivial_v<T>)
+    for (size_type i = m_size; i < m_capacity; i++) {
+      new_arr[i] = T();
+    }
   memcpy(new_arr, m_arr, m_size * sizeof(T));
   alloc::deallocate(m_allocator, m_arr, m_capacity);
   m_arr = new_arr;
