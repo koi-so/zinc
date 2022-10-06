@@ -26,11 +26,12 @@ private:
 template <typename T> struct ref {
 public:
   ref() = default;
-  ref(T *handle) : m_handle(handle) {
+  template <typename U> ref(U *handle) : m_handle(handle) {
     m_count = new ref_count();
     acquire();
   }
-  ref(T *handle, ref_count *count) : m_count(count), m_handle(handle) {
+  template <typename U>
+  ref(U *handle, ref_count *count) : m_count(count), m_handle(handle) {
     acquire();
   }
   ~ref() { release(); }
@@ -81,7 +82,7 @@ public:
   [[nodiscard]] auto use_count() const noexcept -> usize {
     return m_count->use_count();
   }
-  [[nodiscard]] auto get() const -> T * { return m_handle; }
+  [[nodiscard]] auto get() const -> T & { return *m_handle; }
 
   [[nodiscard]] auto operator->() const -> T * { return m_handle; }
   [[nodiscard]] auto operator*() const -> T * { return *m_handle; }
