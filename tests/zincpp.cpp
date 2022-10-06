@@ -6,8 +6,9 @@ using namespace zinc;
 
 template struct zinc::option<i32>;
 
-struct m {
-  m(int i) : ii(i) {}
+struct rt {
+  rt(int i) : ii(i) {}
+  ~rt() { std::cout << "rt dtor" << std::endl; }
   int ii;
 };
 
@@ -24,6 +25,21 @@ auto main() -> int {
 
   for (auto i : m) {
     std::cout << i << std::endl;
+  }
+
+  {
+    auto x = zinc::make_ref<rt>(5);
+    std::cout << x.use_count() << std::endl;
+    {
+      auto y = x;
+      std::cout << x.use_count() << std::endl;
+      {
+        auto z = x;
+        std::cout << x.use_count() << std::endl;
+      }
+      std::cout << x.use_count() << std::endl;
+    }
+    std::cout << x.use_count() << std::endl;
   }
 
   return 0;

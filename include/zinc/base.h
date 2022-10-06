@@ -26,9 +26,12 @@ struct panic_data {
 
 template <typename TValue> inline constexpr auto drop(TValue &&) -> void {}
 
-template <typename TAs>
-[[nodiscard]] inline constexpr auto as(TAs &&value) noexcept -> TAs && {
-  return static_cast<TAs &&>(value);
+template <typename To, typename From>
+[[nodiscard]] inline constexpr auto as(From value) noexcept -> To {
+  if constexpr (std::is_pointer_v<From>)
+    return reinterpret_cast<To>(value);
+  else
+    return static_cast<To>(value);
 }
 
 inline auto panic(char const *msg) -> void { throw panic_data{msg}; }
