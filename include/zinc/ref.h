@@ -23,15 +23,17 @@ private:
   usize m_count{0};
 };
 
-template <typename T> struct ref {
+template <typename T, typename D = void (*)(T *)> struct ref {
 public:
   ref() = default;
-  template <typename U> ref(U *handle) : m_handle(handle) {
+  template <typename U>
+  ref(U *handle, D deleter = nullptr) : m_handle(handle), m_deleter(deleter) {
     m_count = new ref_count();
     acquire();
   }
   template <typename U>
-  ref(U *handle, ref_count *count) : m_count(count), m_handle(handle) {
+  ref(U *handle, ref_count *count, D deleter = nullptr)
+      : m_count(count), m_handle(handle), m_deleter(deleter) {
     acquire();
   }
   ~ref() { release(); }
@@ -95,7 +97,10 @@ public:
   void release() {
     if (m_handle) {
       if (!m_count->release()) {
-        delete m_handle;
+        if (m_deleter)
+          m_deleter(m_handle);
+        else
+          delete[] m_handle;
         delete m_count;
       }
     }
@@ -103,7 +108,8 @@ public:
 
 private:
   T *m_handle{nullptr};
-  ref_count *m_count;
+  ref_count *m_count{nullptr};
+  D m_deleter{nullptr};
 };
 
 template <typename T, typename... Args>

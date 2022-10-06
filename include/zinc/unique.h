@@ -3,11 +3,12 @@
 #include "base.h"
 
 namespace zinc {
-template <typename T> struct unique {
+template <typename T, typename D = void (*)(T *)> struct unique {
 public:
-  template <typename OtherDataType> friend struct unique;
+  template <typename OtherDataType, typename OtherDeleter> friend struct unique;
 
-  explicit unique(T *raw_ptr) noexcept : m_raw_ptr(std::move(raw_ptr)) {}
+  explicit unique(T *raw_ptr, D deleter = nullptr) noexcept
+      : m_raw_ptr(std::move(raw_ptr)), m_deleter(deleter) {}
 
   unique(std::nullptr_t) noexcept : m_raw_ptr(nullptr) {}
   unique() noexcept : m_raw_ptr(nullptr) {}
@@ -60,10 +61,16 @@ public:
 
 private:
   void cleanup() {
-    if (m_raw_ptr != nullptr)
-      delete (m_raw_ptr);
+    if (m_raw_ptr != nullptr) {
+      if (m_deleter) {
+        m_deleter(m_raw_ptr);
+      } else {
+        delete (m_raw_ptr);
+      }
+    }
   }
   T *m_raw_ptr{nullptr};
+  D m_deleter{nullptr};
 };
 
 template <typename T, typename... Args>

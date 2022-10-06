@@ -12,6 +12,11 @@ struct rt {
   int ii;
 };
 
+auto clean_rt(rt *r) -> void {
+  delete r;
+  std::cout << "clean_rt" << std::endl;
+}
+
 auto main() -> int {
   auto data_pool = zinc::pool(sizeof(char), 1000);
 
@@ -28,7 +33,8 @@ auto main() -> int {
   }
 
   {
-    auto x = zinc::make_ref<rt>(5);
+    rt *n = new rt(4);
+    auto x = zinc::ref<rt>(n, clean_rt);
     std::cout << x.use_count() << std::endl;
     {
       auto y = x;
