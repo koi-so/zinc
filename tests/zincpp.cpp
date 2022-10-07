@@ -1,5 +1,4 @@
 #include "zinc/zinc.h"
-
 #include <iostream>
 
 using namespace zinc;
@@ -34,7 +33,7 @@ auto main() -> int {
 
   {
     rt *n = new rt(4);
-    auto x = zinc::ref<rt>(n, clean_rt);
+    auto x = zinc::shared<rt>(n, clean_rt);
     std::cout << x.use_count() << std::endl;
     {
       auto y = x;
