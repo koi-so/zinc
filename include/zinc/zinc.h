@@ -7,6 +7,7 @@
 #include "zinc/debug.h"
 #include "zinc/enum.h"
 #include "zinc/func.h"
+#include "zinc/interface.h"
 #include "zinc/option.h"
 #include "zinc/ref.h"
 #include "zinc/shared.h"
