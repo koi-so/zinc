@@ -89,4 +89,9 @@ auto make_tuple(TElements &&...elements) -> tuple<TElements...> {
 template <typename... TElements>
 tuple(TElements... args) -> tuple<TElements...>;
 
+template <typename... Args>
+constexpr auto tie(Args &...args) noexcept -> tuple<Args &...> {
+  return {args...};
+}
+
 } // namespace zinc
