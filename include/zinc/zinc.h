@@ -5,6 +5,7 @@
 #include "zinc/base.h"
 #include "zinc/checked_int.h"
 #include "zinc/debug.h"
+#include "zinc/enum.h"
 #include "zinc/func.h"
 #include "zinc/option.h"
 #include "zinc/ref.h"
