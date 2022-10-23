@@ -3,11 +3,10 @@
 #include "base.h"
 
 #define ZINC_ENABLE_BITMASK_OPERATORS(x)                                       \
-  template <> struct ::zinc::EnableBitMaskOperators<x> {                       \
+  template <> struct EnableBitMaskOperators<x> {                               \
     static const bool enable = true;                                           \
   };
 
-namespace zinc {
 template <typename E> struct EnableBitMaskOperators {
   static const bool enable = false;
 };
@@ -62,4 +61,3 @@ inline auto operator^=(E &lhs, E rhs)
                        static_cast<std::underlying_type_t<E>>(rhs));
   return lhs;
 }
-} // namespace zinc
