@@ -3,7 +3,7 @@
 #include "base.h"
 
 #define ZINC_ENABLE_BITMASK_OPERATORS(x)                                       \
-  template <> struct EnableBitMaskOperators<x> {                               \
+  template <> struct ::zinc::EnableBitMaskOperators<x> {                       \
     static const bool enable = true;                                           \
   };
 
