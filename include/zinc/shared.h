@@ -25,6 +25,7 @@ private:
 
 template <typename T, typename D = void (*)(T *)> struct shared {
 public:
+  template <typename U, typename E> friend class shared;
   shared() = default;
   template <typename U>
   shared(U *handle, D deleter = nullptr)
@@ -39,15 +40,17 @@ public:
   }
   ~shared() { release(); }
 
-  shared(shared const &other)
+  template <typename U>
+  shared(shared<U> const &other)
       : m_count(other.m_count), m_handle(other.m_handle) {
     acquire();
   }
-  shared(shared &&other) : m_count(other.m_count), m_handle(other.m_handle) {
+  template <typename U>
+  shared(shared<U> &&other) : m_count(other.m_count), m_handle(other.m_handle) {
     other.m_handle = nullptr;
   }
 
-  auto operator=(shared const &other) -> shared<T> & {
+  template <typename U> auto operator=(shared<U> const &other) -> shared<T> & {
     if (&other != this) {
       release();
       m_handle = other.get();
@@ -55,10 +58,10 @@ public:
       acquire();
     }
 
-    return as<T &>(*this);
+    return as<shared<T> &>(*this);
   }
 
-  auto operator=(shared &&other) -> shared<T> & {
+  template <typename U> auto operator=(shared<U> &&other) -> shared<T> & {
     if (&other != this) {
       if (m_handle) {
         release();
@@ -68,7 +71,7 @@ public:
       other.m_handle = nullptr;
     }
 
-    return as<T &>(*this);
+    return as<shared<T> &>(*this);
   }
 
   shared(std::nullptr_t) { m_handle = nullptr; }
