@@ -39,9 +39,9 @@ class tuple
     : public details::tuple_base<std::make_index_sequence<sizeof...(Ts)>,
                                  Ts...> {
 public:
-  tuple(const Ts &...ts)
-      : details::tuple_base<std::make_index_sequence<sizeof...(Ts)>, Ts...>(
-            ts...) {}
+  // tuple(const Ts &...ts)
+  //     : details::tuple_base<std::make_index_sequence<sizeof...(Ts)>, Ts...>(
+  //           ts...) {}
 
   tuple(Ts &&...ts)
       : details::tuple_base<std::make_index_sequence<sizeof...(Ts)>, Ts...>(
