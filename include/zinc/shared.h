@@ -104,8 +104,10 @@ public:
       if (!m_count->release()) {
         if (m_deleter)
           m_deleter(m_handle);
-        else
+        else if constexpr (std::is_array_v<T>)
           delete[] m_handle;
+        else
+          delete m_handle;
         delete m_count;
       }
     }
