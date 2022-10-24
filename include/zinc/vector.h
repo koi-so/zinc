@@ -385,8 +385,8 @@ void vector<T, A>::resize(typename vector<T, A>::size_type size) {
       for (size_type i = m_size; i < size; ++i)
         m_arr[i].~T();
     }
-    m_size = size;
   }
+  m_size = size;
 }
 
 template <typename T, typename A>

@@ -19,8 +19,9 @@ public:
       : m_buffer(count + 1, allocator) {
     m_buffer[count] = '\0';
   }
-  inline basic_string(string_view &view, TAllocator &allocator);
-  inline basic_string(string_view &view) : basic_string(view, TAllocator()) {}
+  inline basic_string(string_view const &view, TAllocator &allocator);
+  inline basic_string(string_view const &view)
+      : basic_string(view, TAllocator()) {}
 
   inline basic_string(basic_string const &other) : m_buffer(other.m_buffer) {
     m_buffer[m_buffer.size()] = '\0';
@@ -152,7 +153,7 @@ private:
 };
 
 template <typename TValue, typename TAllocator>
-inline basic_string<TValue, TAllocator>::basic_string(string_view &view,
+inline basic_string<TValue, TAllocator>::basic_string(string_view const &view,
                                                       TAllocator &allocator)
     : m_buffer(allocator) {
   m_buffer.resize(view.length() + 1);
