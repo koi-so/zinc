@@ -50,7 +50,7 @@ public:
     other.m_handle = nullptr;
   }
 
-  template <typename U> auto operator=(shared<U> const &other) -> shared<T> & {
+  template <typename U> auto operator=(shared<U> const &other) -> shared & {
     if (&other != this) {
       release();
       m_handle = other.get();
@@ -58,10 +58,10 @@ public:
       acquire();
     }
 
-    return as<shared<T> &>(*this);
+    return *this;
   }
 
-  template <typename U> auto operator=(shared<U> &&other) -> shared<T> & {
+  template <typename U> auto operator=(shared<U> &&other) -> shared & {
     if (&other != this) {
       if (m_handle) {
         release();
@@ -71,14 +71,14 @@ public:
       other.m_handle = nullptr;
     }
 
-    return as<shared<T> &>(*this);
+    return *this;
   }
 
   shared(std::nullptr_t) { m_handle = nullptr; }
   auto operator=(std::nullptr_t) -> shared<T> & {
     release();
     m_handle = nullptr;
-    return as<T &>(*this);
+    return *this;
   }
 
   operator bool() const { return m_handle != nullptr; }
