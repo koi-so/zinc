@@ -11,17 +11,17 @@ template <typename TValue> struct array_view;
 template <typename T, typename A = sys_allocator<T>> class vector {
 public:
   // types:
-  typedef T value_type;
-  typedef T &reference;
-  typedef const T &const_reference;
-  typedef T *pointer;
-  typedef const T *const_pointer;
-  typedef T *iterator;
-  typedef const T *const_iterator;
-  typedef std::reverse_iterator<iterator> reverse_iterator;
-  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-  typedef ptrdiff difference_type;
-  typedef usize size_type;
+  using value_type = T;
+  using reference = T &;
+  using const_reference = const T &;
+  using pointer = T *;
+  using const_pointer = const T *;
+  using iterator = T *;
+  using const_iterator = const T *;
+  using reverse_iterator = std::reverse_iterator<iterator>;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+  using difference_type = ptrdiff;
+  using size_type = usize;
 
   // 23.3.11.2, construct/copy/destroy:
   vector(A &allocator);
