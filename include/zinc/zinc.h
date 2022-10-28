@@ -10,6 +10,7 @@
 #include "zinc/interface.h"
 #include "zinc/option.h"
 #include "zinc/ref.h"
+#include "zinc/ref_wrapper.h"
 #include "zinc/shared.h"
 #include "zinc/string.h"
 #include "zinc/time.h"
